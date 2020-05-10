@@ -1,8 +1,8 @@
 class cli_colors:
-    END = '\e[0m'
-    RED = '\e[1;31m'
-    GREEN = '\e[1;32m'
-    BLUE = '\e[1;34m'
+    END = '\u001b[0m'
+    RED = '\u001b[31m'
+    GREEN = '\u001b[32m'
+    BLUE = '\u001b[34m'
 
 def returnError(message):
     print(f"""
