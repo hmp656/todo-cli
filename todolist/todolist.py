@@ -74,7 +74,7 @@ def list_format(items):
                 yield index + item[1] + ' (Due ' + cli_col.BLUE + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
             elif daysLeft == 0:
                 yield index + item[1] + ' (Due ' + cli_col.GREEN + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
-            elif daysLeft > 0:
+            elif daysLeft < 0:
                 yield index + item[1] + ' (Due ' + cli_col.RED + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
 
         else:
