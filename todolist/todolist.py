@@ -22,7 +22,6 @@ else:
 Task = namedtuple('Task', columns)
 
 
-
 def getItems(command='incomplete'):
     c = curse()
     if command == 'incomplete':
@@ -37,7 +36,6 @@ def getItems(command='incomplete'):
     return c[0].fetchall()
 
 
-
 def searchTags(query):
     c = curse()
     d = curse()
@@ -49,14 +47,12 @@ def searchTags(query):
         return None
 
 
-
 def createList(items):
     listed = []
     for item in map(Task._make, items):
         listed.append(item)
 
     return(listed)
-
 
 
 def list_format(items):
@@ -81,7 +77,6 @@ def list_format(items):
             yield index + item[1] + tags
 
 
-
 def editList(ID_Code, title=None, expiry_date=None, tags=None, status=0, command='add'):
     c = curse()
 
@@ -101,7 +96,6 @@ def editList(ID_Code, title=None, expiry_date=None, tags=None, status=0, command
     c[1].close()
 
 
-
 @click.group(invoke_without_command=True)
 @click.pass_context
 def main(ctx=None):
@@ -110,6 +104,7 @@ def main(ctx=None):
         for item in list_format(createList(items)):
             print(item)
 
+            
 # view all tasks
 @main.command()
 @click.option('--command', default='incomplete', nargs=1)
