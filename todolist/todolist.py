@@ -22,6 +22,7 @@ else:
 Task = namedtuple('Task', columns)
 
 
+
 def getItems(command='incomplete'):
     c = curse()
     if command == 'incomplete':
@@ -36,6 +37,7 @@ def getItems(command='incomplete'):
     return c[0].fetchall()
 
 
+
 def searchTags(query):
     c = curse()
     d = curse()
@@ -47,12 +49,14 @@ def searchTags(query):
         return None
 
 
+
 def createList(items):
     listed = []
     for item in map(Task._make, items):
         listed.append(item)
 
     return(listed)
+
 
 
 def list_format(items):
@@ -64,17 +68,21 @@ def list_format(items):
         else:
             tags = ' #' + str(item[3])
 
-        if item[2] and checks.checkDateFormat(item[2]):
-            daysLeft = checks.dateDif(item[2])
-            if daysLeft > 0:
-                yield index + item[1] + ' (Due ' + cli_col.BLUE + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
-            elif daysLeft == 0:
-                yield index + item[1] + ' (Due ' + cli_col.GREEN + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
-            elif daysLeft < 0:
-                yield index + item[1] + ' (Due ' + cli_col.RED + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
+        if item[4] == 0:
+            if item[2] and checks.checkDateFormat(item[2]):
+                daysLeft = checks.dateDif(item[2])
+                if daysLeft > 0:
+                    yield index + item[1] + ' (Due ' + cli_col.BLUE + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
+                elif daysLeft == 0:
+                    yield index + item[1] + ' (Due ' + cli_col.GREEN + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
+                elif daysLeft > 0:
+                    yield index + item[1] + ' (Due ' + cli_col.RED + checks.daysConvert(daysLeft) + cli_col.END + ')' + tags
+
+            else:
+                yield index + item[1] + tags
 
         else:
-            yield index + item[1] + tags
+            yield index + item[1] + tags + ' (Done)'
 
 
 def editList(ID_Code, title=None, expiry_date=None, tags=None, status=0, command='add'):
@@ -96,6 +104,7 @@ def editList(ID_Code, title=None, expiry_date=None, tags=None, status=0, command
     c[1].close()
 
 
+
 @click.group(invoke_without_command=True)
 @click.pass_context
 def main(ctx=None):
@@ -104,10 +113,9 @@ def main(ctx=None):
         for item in list_format(createList(items)):
             print(item)
 
-            
 # view all tasks
-@main.command()
-@click.option('--command', default='incomplete', nargs=1)
+@main.command(help='complete, incomplete, all')
+@click.argument('command', default='incomplete', nargs=1)
 def view(command):
     items = getItems(command)
     for item in list_format(createList(items)):
@@ -115,7 +123,7 @@ def view(command):
 
 
 # search tags
-@main.command()
+@main.command(help='search for a tag')
 def search():
     tag_search = input('Enter tag: ')
     results = searchTags(tag_search)
@@ -147,7 +155,7 @@ def search():
 
 
 # add a task
-@main.command()
+@main.command(help='add an item')
 def add():
     title_task = input('Enter title: ')
     title_date = input('Enter date (DD/MM/YYYY): ')
@@ -159,7 +167,7 @@ def add():
 
 
 # edit title and date
-@main.command()
+@main.command(help='enter index, item will be edited')
 @click.argument('index', nargs=1, type=int)
 def edit(index):
     title_task = input('Enter title: ')
@@ -177,7 +185,7 @@ def edit(index):
 
 
 # add a tag
-@main.command()
+@main.command(help='enter index, tag will be added')
 @click.argument('index', nargs=1, type=int)
 def tag(index):
     title_tag = input('Enter tag: ')
@@ -186,9 +194,8 @@ def tag(index):
     editList(items[index-1][0], tags=title_tag, command='tag')
 
 
-
 # remove
-@main.command()
+@main.command(help='enter index, item will be removed')
 @click.argument('index', nargs=1, type=int)
 def rem(index):
     items = getItems()
@@ -198,10 +205,15 @@ def rem(index):
         returnError(e)
 
 
-@main.command()
+@main.command(help='clears all data after prompt')
 def rebuildDB():
-    dropTable()
-    databaseBuild()
+    print('Are you sure you want to continue? You will lose all data.')
+    userInput = input('y/n: ')
+    if userInput in ['y', 'yes']:
+        dropTable()
+        databaseBuild()
+    else:
+        print('Cancelled.')
 
 
 if __name__ == '__main__':
